@@ -20,21 +20,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.user.exoplayer.R;
 import com.user.exoplayer.player.data.VideoSource;
 import com.user.exoplayer.player.data.database.AppDatabase;
+import com.user.exoplayer.player.data.model.Audio;
+import com.user.exoplayer.player.util.AudioAdapter;
 import com.user.exoplayer.player.util.PlayerController;
 import com.user.exoplayer.player.util.SubtitleAdapter;
 import com.user.exoplayer.player.util.VideoPlayer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerActivity extends AppCompatActivity implements View.OnClickListener, PlayerController {
 
     private static final String TAG = "PlayerActivity";
     private PlayerView playerView;
     private VideoPlayer player;
-    private ImageButton mute, unMute, subtitle, setting, lock, unLock, nextBtn, retry, back;
+    private ImageButton mute, unMute, subtitle, audio, setting, lock, unLock, nextBtn, retry, back;
     private ProgressBar progressBar;
     private AlertDialog alertDialog;
     private VideoSource videoSource;
@@ -99,6 +105,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         mute = findViewById(R.id.btn_mute);
         unMute = findViewById(R.id.btn_unMute);
         subtitle = findViewById(R.id.btn_subtitle);
+        audio = findViewById(R.id.btn_audio);
         setting = findViewById(R.id.btn_settings);
         lock = findViewById(R.id.btn_lock);
         unLock = findViewById(R.id.btn_unLock);
@@ -112,6 +119,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         mute.setOnClickListener(this);
         unMute.setOnClickListener(this);
         subtitle.setOnClickListener(this);
+        audio.setOnClickListener(this);
         setting.setOnClickListener(this);
         lock.setOnClickListener(this);
         unLock.setOnClickListener(this);
@@ -236,6 +244,9 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.btn_subtitle:
                 prepareSubtitles();
                 break;
+            case R.id.btn_audio:
+                prepareAudios();
+                break;
             case R.id.btn_lock:
                 updateLockMode(true);
                 break;
@@ -318,8 +329,20 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             return;
         }
 
-        player.pausePlayer();
         showSubtitleDialog();
+
+    }
+
+    private void prepareAudios() {
+
+        HlsManifest hlsManifest = (HlsManifest) player.getPlayer().getCurrentManifest();
+
+        if (hlsManifest == null || hlsManifest.masterPlaylist.audios.size() == 0) {
+            Toast.makeText(this, "there is no audio in here, bye bye!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        showAudioDialog();
 
     }
 
@@ -369,6 +392,51 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
     }
+
+    private void showAudioDialog() {
+
+        List<Audio> audioList = new ArrayList<>();
+        HlsManifest hlsManifest = (HlsManifest) player.getPlayer().getCurrentManifest();
+
+        for (int i = 0; i < hlsManifest.masterPlaylist.audios.size(); i++) {
+
+            audioList.add(new Audio(hlsManifest.masterPlaylist.audios.get(i).format.label,
+                    hlsManifest.masterPlaylist.audios.get(i).format.language));
+        }
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
+
+
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        View view = inflater.inflate(R.layout.audio_selection_dialog, null);
+
+        builder.setView(view);
+        alertDialog = builder.create();
+
+        // set the height and width of dialog
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.copyFrom(alertDialog.getWindow().getAttributes());
+        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        layoutParams.gravity = Gravity.CENTER;
+
+        alertDialog.getWindow().setAttributes(layoutParams);
+
+        RecyclerView recyclerView = view.findViewById(R.id.audio_recycler_view);
+        recyclerView.setAdapter(new AudioAdapter(audioList, player));
+
+        Button cancelDialog = view.findViewById(R.id.cancel_dialog_btn);
+        cancelDialog.setOnClickListener(view1 -> {
+            alertDialog.dismiss();
+            player.resumePlayer();
+        });
+
+        // to prevent dialog box from getting dismissed on outside touch
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
+    }
+
 
     public void setMuteMode(boolean mute) {
         if (player != null && playerView != null) {
@@ -428,6 +496,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void videoEnded() {
         findViewById(R.id.exo_next).performClick();
+    }
+
+    @Override
+    public void dismissAudioDialog() {
+        alertDialog.dismiss();
     }
 
 

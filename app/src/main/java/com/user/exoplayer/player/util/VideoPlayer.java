@@ -13,8 +13,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import com.user.exoplayer.player.data.VideoSource;
-import com.user.exoplayer.player.data.database.Subtitle;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -37,6 +35,8 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.user.exoplayer.player.data.VideoSource;
+import com.user.exoplayer.player.data.database.Subtitle;
 
 
 public class VideoPlayer {
@@ -327,6 +327,15 @@ public class VideoPlayer {
         resumePlayer();
 
 
+    }
+
+    /***********************************************************
+     manually select audio
+     ***********************************************************/
+    void setSelectedAudio(String language) {
+
+        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(language));
+        playerController.dismissAudioDialog();
     }
 
     /***********************************************************

@@ -125,6 +125,15 @@
             android:src="@drawable/exo_subtitle_btn" />
 
         <ImageButton
+            android:id="@+id/btn_audio"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="0"
+            style="@style/ExoMediaButton.Play"
+            android:src="@drawable/exo_audio_btn" />
+
+        <ImageButton
             android:id="@+id/btn_settings"
             android:layout_width="32dp"
             android:layout_height="32dp"
