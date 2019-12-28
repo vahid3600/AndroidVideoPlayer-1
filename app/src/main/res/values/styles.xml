@@ -15,4 +15,10 @@
         <item name="windowMinWidthMinor">65%</item>
     </style>
 
+    <style name="CustomDialog" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
 </resources>

@@ -297,7 +297,7 @@ public class VideoPlayer {
     /***********************************************************
      manually select subtitle
      ***********************************************************/
-    void setSelectedSubtitle(Subtitle subtitle) {
+    public void setSelectedSubtitle(Subtitle subtitle) {
 
         if (TextUtils.isEmpty(subtitle.getTitle()))
             Log.d(TAG, "setSelectedSubtitle: subtitle title is empty");
@@ -332,10 +332,9 @@ public class VideoPlayer {
     /***********************************************************
      manually select audio
      ***********************************************************/
-    void setSelectedAudio(String language) {
+    public void setSelectedAudio(String language) {
 
         trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredAudioLanguage(language));
-        playerController.dismissAudioDialog();
     }
 
     /***********************************************************

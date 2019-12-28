@@ -16,7 +16,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.exoplayer2.Player;
@@ -26,10 +25,12 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.user.exoplayer.R;
 import com.user.exoplayer.player.data.VideoSource;
 import com.user.exoplayer.player.data.database.AppDatabase;
+import com.user.exoplayer.player.data.database.Subtitle;
 import com.user.exoplayer.player.data.model.Audio;
 import com.user.exoplayer.player.util.AudioAdapter;
+import com.user.exoplayer.player.util.CustomDialog;
 import com.user.exoplayer.player.util.PlayerController;
-import com.user.exoplayer.player.util.SubtitleAdapter;
+import com.user.exoplayer.player.util.SubtitleDialog;
 import com.user.exoplayer.player.util.VideoPlayer;
 
 import java.util.ArrayList;
@@ -136,10 +137,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
         player = new VideoPlayer(playerView, getApplicationContext(), videoSource, this);
 
-        if (player.getCurrentVideo().getSubtitles() == null ||
-                player.getCurrentVideo().getSubtitles().size() == 0) {
-            subtitle.setImageResource(R.drawable.exo_no_subtitle_btn);
-        }
+        checkSubtitleAvailability();
 
         player.seekToOnDoubleTap();
         this.mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
@@ -242,7 +240,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 player.setSelectedQuality(this);
                 break;
             case R.id.btn_subtitle:
-                prepareSubtitles();
+                showSubtitleDialog();
                 break;
             case R.id.btn_audio:
                 prepareAudios();
@@ -284,6 +282,15 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    public void checkSubtitleAvailability() {
+
+        if (player.getCurrentVideo().getSubtitles() == null ||
+                player.getCurrentVideo().getSubtitles().size() == 0) {
+            subtitle.setImageResource(R.drawable.exo_no_subtitle_btn);
+            subtitle.setClickable(false);
+        }
+    }
+
     /***********************************************************
      UI config
      ***********************************************************/
@@ -308,7 +315,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             return;
         }
 
-        alertDialog.dismiss();
         playerView.getSubtitleView().setVisibility(View.VISIBLE);
     }
 
@@ -317,20 +323,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         CaptionStyleCompat captionStyleCompat = new CaptionStyleCompat(Color.YELLOW, Color.TRANSPARENT, Color.TRANSPARENT,
                 CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW, Color.LTGRAY, null);
         playerView.getSubtitleView().setStyle(captionStyleCompat);
-    }
-
-    private void prepareSubtitles() {
-        if (player == null || playerView.getSubtitleView() == null)
-            return;
-
-        if (player.getCurrentVideo().getSubtitles() == null ||
-                player.getCurrentVideo().getSubtitles().size() == 0) {
-            Toast.makeText(this, getString(R.string.no_subtitle), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        showSubtitleDialog();
-
     }
 
     private void prepareAudios() {
@@ -348,49 +340,17 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     private void showSubtitleDialog() {
         //init subtitle dialog
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
 
-
-        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-        View view = inflater.inflate(R.layout.subtitle_selection_dialog, null);
-
-        builder.setView(view);
-        alertDialog = builder.create();
-
-        // set the height and width of dialog
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(alertDialog.getWindow().getAttributes());
-        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        layoutParams.gravity = Gravity.CENTER;
-
-        alertDialog.getWindow().setAttributes(layoutParams);
-
-        RecyclerView recyclerView = view.findViewById(R.id.subtitle_recycler_view);
-        recyclerView.setAdapter(new SubtitleAdapter(player.getCurrentVideo().getSubtitles(), player));
-
-        for (int i = 0; i < player.getCurrentVideo().getSubtitles().size(); i++) {
-            Log.d("subtitle", "showSubtitleDialog: " + player.getCurrentVideo().getSubtitles().get(i).getTitle());
-        }
-
-        TextView noSubtitle = view.findViewById(R.id.no_subtitle_text_view);
-        noSubtitle.setOnClickListener(view1 -> {
-            if (playerView.getSubtitleView().getVisibility() == View.VISIBLE)
+        SubtitleDialog subtitleDialog = SubtitleDialog.INSTANCE;
+        subtitleDialog.showNow(getSupportFragmentManager(), CustomDialog.TAG);
+        subtitleDialog.showTitleScreen("Subtitle");
+        subtitleDialog.showSubtitleList(getSubtitleList(), subtitle -> {
+            if (subtitle.getTitle().equals("No Subtitle"))
                 showSubtitle(false);
-            alertDialog.dismiss();
-            player.resumePlayer();
+            else
+                player.setSelectedSubtitle(subtitle);
+            subtitleDialog.dismiss();
         });
-
-        Button cancelDialog = view.findViewById(R.id.cancel_dialog_btn);
-        cancelDialog.setOnClickListener(view1 -> {
-            alertDialog.dismiss();
-            player.resumePlayer();
-        });
-
-        // to prevent dialog box from getting dismissed on outside touch
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.show();
     }
 
     private void showAudioDialog() {
@@ -437,6 +397,14 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         alertDialog.show();
     }
 
+    private List<Subtitle> getSubtitleList() {
+
+        List<Subtitle> subtitleList = new ArrayList<>();
+        subtitleList.add(new Subtitle(0, "No Subtitle", ""));
+        subtitleList.addAll(player.getCurrentVideo().getSubtitles());
+
+        return subtitleList;
+    }
 
     public void setMuteMode(boolean mute) {
         if (player != null && playerView != null) {
