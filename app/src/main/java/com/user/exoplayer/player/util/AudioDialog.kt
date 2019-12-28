@@ -2,23 +2,24 @@ package com.user.exoplayer.player.util
 
 import com.user.exoplayer.player.data.model.Audio
 
-object AudioDialog : CustomDialog() {
+class AudioDialog : VideoPlayerDialog() {
 
     fun showAudioList(audioList: List<Audio>, listener: AdapterListener<Audio>) {
 
-        super.showDataList(mapDataList(audioList), object :AdapterListener<Int>{
+        super.showDataList(mapDataList(audioList), object : AdapterListener<Int> {
             override fun onItemClick(t: Int) {
                 listener.onItemClick(audioList[t])
+                selectedItemNumber = t
             }
         })
     }
 
-    private fun mapDataList(audioList: List<Audio>): List<CustomDialogModel> {
+    private fun mapDataList(audioList: List<Audio>): List<VideoPlayerDialogModel> {
 
-        val modelList = ArrayList<CustomDialogModel>()
+        val modelList = ArrayList<VideoPlayerDialogModel>()
 
         audioList.map {
-            modelList.add(CustomDialogModel(it.label, it.language))
+            modelList.add(VideoPlayerDialogModel(it.label, it.language))
         }
 
         return modelList

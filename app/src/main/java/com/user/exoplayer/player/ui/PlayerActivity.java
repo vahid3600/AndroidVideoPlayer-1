@@ -22,7 +22,7 @@ import com.user.exoplayer.player.data.database.AppDatabase;
 import com.user.exoplayer.player.data.database.Subtitle;
 import com.user.exoplayer.player.data.model.Audio;
 import com.user.exoplayer.player.util.AudioDialog;
-import com.user.exoplayer.player.util.CustomDialog;
+import com.user.exoplayer.player.util.VideoPlayerDialog;
 import com.user.exoplayer.player.util.PlayerController;
 import com.user.exoplayer.player.util.SubtitleDialog;
 import com.user.exoplayer.player.util.VideoPlayer;
@@ -37,7 +37,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private VideoPlayer player;
     private ImageButton mute, unMute, subtitle, audio, setting, lock, unLock, nextBtn, retry, back;
     private ProgressBar progressBar;
-    private CustomDialog alertDialog;
+    private VideoPlayerDialog alertDialog;
     private VideoSource videoSource;
     private AudioManager mAudioManager;
     private boolean disableBackPress = false;
@@ -334,11 +334,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private void showSubtitleDialog() {
         //init subtitle dialog
 
-        SubtitleDialog subtitleDialog = SubtitleDialog.INSTANCE;
-        subtitleDialog.showNow(getSupportFragmentManager(), CustomDialog.TAG);
+        SubtitleDialog subtitleDialog = new SubtitleDialog();
+        subtitleDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
         subtitleDialog.showTitleScreen("Subtitle");
         subtitleDialog.showSubtitleList(getSubtitleList(), subtitle -> {
-            if (subtitle.getTitle().equals("No Subtitle"))
+            if (subtitle.getId() == -1)
                 showSubtitle(false);
             else
                 player.setSelectedSubtitle(subtitle);
@@ -348,8 +348,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     private void showAudioDialog() {
 
-        AudioDialog audioDialog = AudioDialog.INSTANCE;
-        audioDialog.showNow(getSupportFragmentManager(), CustomDialog.TAG);
+        AudioDialog audioDialog = new AudioDialog();
+        audioDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
         audioDialog.showTitleScreen("Audio");
         audioDialog.showAudioList(getAudioList(), audio -> {
             player.setSelectedAudio(audio.getLanguage());
@@ -379,7 +379,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private List<Subtitle> getSubtitleList() {
 
         List<Subtitle> subtitleList = new ArrayList<>();
-        subtitleList.add(new Subtitle(0, "No Subtitle", ""));
+        subtitleList.add(new Subtitle(-1, "No Subtitle", ""));
         subtitleList.addAll(player.getCurrentVideo().getSubtitles());
 
         return subtitleList;

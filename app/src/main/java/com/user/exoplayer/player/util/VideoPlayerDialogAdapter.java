@@ -11,12 +11,12 @@ import com.user.exoplayer.R;
 
 import java.util.List;
 
-public class CustomDialogAdapter extends RecyclerView.Adapter<CustomDialogAdapter.AudioViewHolder> {
+public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDialogAdapter.AudioViewHolder> {
 
-    private List<CustomDialogModel> dataList;
+    private List<VideoPlayerDialogModel> dataList;
     private AdapterListener listener;
 
-    public CustomDialogAdapter(List<CustomDialogModel> dataList, AdapterListener listener) {
+    public VideoPlayerDialogAdapter(List<VideoPlayerDialogModel> dataList, AdapterListener listener) {
         this.dataList = dataList;
         this.listener = listener;
     }

@@ -2,23 +2,24 @@ package com.user.exoplayer.player.util
 
 import com.user.exoplayer.player.data.database.Subtitle
 
-object SubtitleDialog : CustomDialog() {
+class SubtitleDialog : VideoPlayerDialog() {
 
     fun showSubtitleList(subtitleList: List<Subtitle>, listener: AdapterListener<Subtitle>) {
 
-        super.showDataList(mapDataList(subtitleList), object :AdapterListener<Int>{
+        super.showDataList(mapDataList(subtitleList), object : AdapterListener<Int> {
             override fun onItemClick(t: Int) {
                 listener.onItemClick(subtitleList[t])
+                selectedItemNumber = t
             }
         })
     }
 
-    private fun mapDataList(subtitleList: List<Subtitle>): List<CustomDialogModel> {
+    private fun mapDataList(subtitleList: List<Subtitle>): List<VideoPlayerDialogModel> {
 
-        val modelList = ArrayList<CustomDialogModel>()
+        val modelList = ArrayList<VideoPlayerDialogModel>()
 
         subtitleList.map {
-            modelList.add(CustomDialogModel(it.title.toString(), it.subtitleUrl.toString()))
+            modelList.add(VideoPlayerDialogModel(it.title.toString(), it.subtitleUrl.toString()))
         }
 
         return modelList
