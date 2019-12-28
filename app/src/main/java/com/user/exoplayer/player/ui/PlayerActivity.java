@@ -22,7 +22,7 @@ import com.user.exoplayer.player.data.database.AppDatabase;
 import com.user.exoplayer.player.data.database.Subtitle;
 import com.user.exoplayer.player.data.model.Audio;
 import com.user.exoplayer.player.util.AudioDialog;
-import com.user.exoplayer.player.util.VideoPlayerDialog;
+import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialog;
 import com.user.exoplayer.player.util.PlayerController;
 import com.user.exoplayer.player.util.SubtitleDialog;
 import com.user.exoplayer.player.util.VideoPlayer;

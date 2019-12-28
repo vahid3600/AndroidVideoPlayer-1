@@ -1,6 +1,8 @@
 package com.user.exoplayer.player.util
 
 import com.user.exoplayer.player.data.model.Audio
+import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialog
+import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogModel
 
 class AudioDialog : VideoPlayerDialog() {
 
@@ -19,7 +21,7 @@ class AudioDialog : VideoPlayerDialog() {
         val modelList = ArrayList<VideoPlayerDialogModel>()
 
         audioList.map {
-            modelList.add(VideoPlayerDialogModel(it.label, it.language))
+            modelList.add(VideoPlayerDialogModel(it.label, it.language, true))
         }
 
         return modelList

@@ -1,6 +1,8 @@
 package com.user.exoplayer.player.util
 
 import com.user.exoplayer.player.data.database.Subtitle
+import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialog
+import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogModel
 
 class SubtitleDialog : VideoPlayerDialog() {
 
@@ -19,7 +21,7 @@ class SubtitleDialog : VideoPlayerDialog() {
         val modelList = ArrayList<VideoPlayerDialogModel>()
 
         subtitleList.map {
-            modelList.add(VideoPlayerDialogModel(it.title.toString(), it.subtitleUrl.toString()))
+            modelList.add(VideoPlayerDialogModel(it.title.toString(), it.subtitleUrl.toString(),false))
         }
 
         return modelList

@@ -1,5 +1,6 @@
-package com.user.exoplayer.player.util;
+package com.user.exoplayer.player.util.videoplayerdialog;
 
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.user.exoplayer.R;
+import com.user.exoplayer.databinding.DialogRecyclerviewItemBinding;
+import com.user.exoplayer.player.util.AdapterListener;
 
 import java.util.List;
 
@@ -24,8 +27,9 @@ public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDi
     @NonNull
     @Override
     public AudioViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        return new AudioViewHolder(LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.dialog_recyclerview_item, viewGroup, false));
+        return new AudioViewHolder(DataBindingUtil
+                .inflate(LayoutInflater.from(viewGroup.getContext()),R.layout.dialog_recyclerview_item,
+                        viewGroup, false));
     }
 
     @Override
@@ -40,14 +44,15 @@ public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDi
 
     class AudioViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;
+        DialogRecyclerviewItemBinding binding;
 
-        AudioViewHolder(@NonNull View itemView) {
-            super(itemView);
-            this.titleTextView = itemView.findViewById(R.id.item_text_view);
+        AudioViewHolder(DialogRecyclerviewItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
         void onBind(int position) {
-            titleTextView.setText(dataList.get(position).getTitle());
+            binding.setVideoPlayerDialogModel(dataList.get(position));
             itemView.setOnClickListener(view -> {
 
                 listener.onItemClick(position);

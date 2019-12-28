@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+
+        <variable
+            name="videoPlayerDialogModel"
+            type="com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogModel" />
+    </data>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,6 +20,7 @@
         android:layout_weight="10"
         android:layout_margin="10dp"
         android:textColor="#000"
+        android:text="@{videoPlayerDialogModel.title}"
         android:textSize="18dp" />
 
     <RadioButton
@@ -20,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="center"
-        android:background="#f0f0f0" />
+        android:background="#f0f0f0"
+        android:checked="@{videoPlayerDialogModel.selected}"/>
 
-</LinearLayout>
+</LinearLayout></layout>

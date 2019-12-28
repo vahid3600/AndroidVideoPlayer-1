@@ -1,5 +1,6 @@
-package com.user.exoplayer.player.util
+package com.user.exoplayer.player.util.videoplayerdialog
 
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.widget.DividerItemDecoration
@@ -7,11 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.user.exoplayer.R
+import com.user.exoplayer.databinding.FragmentDialogVideoPlayerBinding
+import com.user.exoplayer.player.util.AdapterListener
 import kotlinx.android.synthetic.main.fragment_dialog_video_player.*
 
 open class VideoPlayerDialog : DialogFragment() {
 
     var selectedItemNumber: Int = -1
+    lateinit var binding: FragmentDialogVideoPlayerBinding
 
     companion object {
 
@@ -33,22 +37,23 @@ open class VideoPlayerDialog : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_dialog_video_player, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_dialog_video_player, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dialog_cancel_button?.setOnClickListener { dismiss() }
+        binding.dialogCancelButton.setOnClickListener { dismiss() }
     }
 
     fun showDataList(dataList: List<VideoPlayerDialogModel>, listener: AdapterListener<Int>) {
 
-        dialog_recycler_view.adapter = VideoPlayerDialogAdapter(dataList, listener)
-        dialog_recycler_view.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        binding.dialogRecyclerView.adapter = VideoPlayerDialogAdapter(dataList, listener)
+        binding.dialogRecyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
     }
 
     fun showTitleScreen(title: String) {
-        dialog_title_text_view.text = title
+        binding.dialogTitleTextView.text = title
     }
 
 }
