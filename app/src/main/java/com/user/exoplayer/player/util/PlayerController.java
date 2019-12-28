@@ -10,5 +10,4 @@ public interface PlayerController {
     void audioFocus();
     void setVideoWatchedLength();
     void videoEnded();
-    void dismissAudioDialog();
 }

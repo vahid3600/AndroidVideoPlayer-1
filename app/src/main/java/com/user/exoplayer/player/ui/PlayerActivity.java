@@ -5,15 +5,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -27,7 +21,7 @@ import com.user.exoplayer.player.data.VideoSource;
 import com.user.exoplayer.player.data.database.AppDatabase;
 import com.user.exoplayer.player.data.database.Subtitle;
 import com.user.exoplayer.player.data.model.Audio;
-import com.user.exoplayer.player.util.AudioAdapter;
+import com.user.exoplayer.player.util.AudioDialog;
 import com.user.exoplayer.player.util.CustomDialog;
 import com.user.exoplayer.player.util.PlayerController;
 import com.user.exoplayer.player.util.SubtitleDialog;
@@ -43,7 +37,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private VideoPlayer player;
     private ImageButton mute, unMute, subtitle, audio, setting, lock, unLock, nextBtn, retry, back;
     private ProgressBar progressBar;
-    private AlertDialog alertDialog;
+    private CustomDialog alertDialog;
     private VideoSource videoSource;
     private AudioManager mAudioManager;
     private boolean disableBackPress = false;
@@ -138,6 +132,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         player = new VideoPlayer(playerView, getApplicationContext(), videoSource, this);
 
         checkSubtitleAvailability();
+
+//        checkAudioAvailability();
 
         player.seekToOnDoubleTap();
         this.mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
@@ -243,7 +239,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 showSubtitleDialog();
                 break;
             case R.id.btn_audio:
-                prepareAudios();
+                showAudioDialog();
                 break;
             case R.id.btn_lock:
                 updateLockMode(true);
@@ -291,6 +287,16 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    public void checkAudioAvailability() {
+
+        HlsManifest hlsManifest = (HlsManifest) player.getPlayer().getCurrentManifest();
+
+        if (hlsManifest == null || hlsManifest.masterPlaylist.audios.size() == 0) {
+            audio.setImageResource(R.drawable.exo_no_audio_btn);
+            audio.setClickable(false);
+        }
+    }
+
     /***********************************************************
      UI config
      ***********************************************************/
@@ -325,19 +331,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         playerView.getSubtitleView().setStyle(captionStyleCompat);
     }
 
-    private void prepareAudios() {
-
-        HlsManifest hlsManifest = (HlsManifest) player.getPlayer().getCurrentManifest();
-
-        if (hlsManifest == null || hlsManifest.masterPlaylist.audios.size() == 0) {
-            Toast.makeText(this, "there is no audio in here, bye bye!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        showAudioDialog();
-
-    }
-
     private void showSubtitleDialog() {
         //init subtitle dialog
 
@@ -355,46 +348,32 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     private void showAudioDialog() {
 
+        AudioDialog audioDialog = AudioDialog.INSTANCE;
+        audioDialog.showNow(getSupportFragmentManager(), CustomDialog.TAG);
+        audioDialog.showTitleScreen("Audio");
+        audioDialog.showAudioList(getAudioList(), audio -> {
+            player.setSelectedAudio(audio.getLanguage());
+            audioDialog.dismiss();
+        });
+    }
+
+    private List<Audio> getAudioList() {
         List<Audio> audioList = new ArrayList<>();
         HlsManifest hlsManifest = (HlsManifest) player.getPlayer().getCurrentManifest();
 
-        for (int i = 0; i < hlsManifest.masterPlaylist.audios.size(); i++) {
+        if (hlsManifest != null && hlsManifest.masterPlaylist != null
+                && hlsManifest.masterPlaylist.audios != null)
+            for (int i = 0; i < hlsManifest.masterPlaylist.audios.size(); i++) {
 
-            audioList.add(new Audio(hlsManifest.masterPlaylist.audios.get(i).format.label,
-                    hlsManifest.masterPlaylist.audios.get(i).format.language));
-        }
+                if (hlsManifest.masterPlaylist.audios.get(i) != null &&
+                        hlsManifest.masterPlaylist.audios.get(i).format != null &&
+                        hlsManifest.masterPlaylist.audios.get(i).format.label != null &&
+                        hlsManifest.masterPlaylist.audios.get(i).format.language != null)
+                    audioList.add(new Audio(hlsManifest.masterPlaylist.audios.get(i).format.label,
+                            hlsManifest.masterPlaylist.audios.get(i).format.language));
+            }
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
-
-
-        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-        View view = inflater.inflate(R.layout.audio_selection_dialog, null);
-
-        builder.setView(view);
-        alertDialog = builder.create();
-
-        // set the height and width of dialog
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(alertDialog.getWindow().getAttributes());
-        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        layoutParams.gravity = Gravity.CENTER;
-
-        alertDialog.getWindow().setAttributes(layoutParams);
-
-        RecyclerView recyclerView = view.findViewById(R.id.audio_recycler_view);
-        recyclerView.setAdapter(new AudioAdapter(audioList, player));
-
-        Button cancelDialog = view.findViewById(R.id.cancel_dialog_btn);
-        cancelDialog.setOnClickListener(view1 -> {
-            alertDialog.dismiss();
-            player.resumePlayer();
-        });
-
-        // to prevent dialog box from getting dismissed on outside touch
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.show();
+        return audioList;
     }
 
     private List<Subtitle> getSubtitleList() {
@@ -465,11 +444,5 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     public void videoEnded() {
         findViewById(R.id.exo_next).performClick();
     }
-
-    @Override
-    public void dismissAudioDialog() {
-        alertDialog.dismiss();
-    }
-
 
 }
