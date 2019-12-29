@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.user.exoplayer.player.data.VideoSource;
 import com.user.exoplayer.player.data.database.Subtitle;
+import com.user.exoplayer.player.data.model.Quality;
 
 
 public class VideoPlayer {
@@ -167,6 +168,23 @@ public class VideoPlayer {
             player.setVolume(1);
             playerController.setMuteMode(false);
         }
+    }
+
+    /***********************************************************
+     manually select stream quality
+     ***********************************************************/
+    public void setSelectedQuality(Quality quality) {
+
+        DefaultTrackSelector.ParametersBuilder parametersBuilder = trackSelector.buildUponParameters();
+        DefaultTrackSelector.SelectionOverride selectionOverride =
+                new DefaultTrackSelector.SelectionOverride(quality.getGroupIndex(), quality.getTrackIndex());
+        parametersBuilder.setRendererDisabled(0,
+                trackSelector.getParameters().getRendererDisabled(0));
+        if (trackSelector.getCurrentMappedTrackInfo() != null) {
+            parametersBuilder.setSelectionOverride(0,
+                    trackSelector.getCurrentMappedTrackInfo().getTrackGroups(0), selectionOverride);
+        }
+        trackSelector.setParameters(parametersBuilder);
     }
 
     public DefaultTrackSelector getTrackSelector(){

@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
 //        subtitleList.add(new Subtitle(1, "English", "https://durian.blender.org/wp-content/content/subtitles/sintel_en.srt"));
 //        subtitleList.add(new Subtitle(1, "Farsi", "https://download.blender.org/durian/subs/sintel_fa.srt"));
 
-        subtitleList.add(new Subtitle(2, "German", "https://durian.blender.org/wp-content/content/subtitles/sintel_en.srt", false));
-        subtitleList.add(new Subtitle(2, "French", "https://durian.blender.org/wp-content/content/subtitles/sintel_fr.srt", false));
+        subtitleList.add(new Subtitle(2, "German", "https://durian.blender.org/wp-content/content/subtitles/sintel_en.srt"));
+        subtitleList.add(new Subtitle(2, "French", "https://durian.blender.org/wp-content/content/subtitles/sintel_fr.srt"));
 
         if (database.videoDao().getAllUrls().size() == 0) {
             database.videoDao().insertAllVideoUrl(videoUriList);

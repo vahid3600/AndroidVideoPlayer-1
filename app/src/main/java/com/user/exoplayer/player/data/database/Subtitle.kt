@@ -16,8 +16,7 @@ import kotlinx.android.parcel.Parcelize
 
 class Subtitle(var videoId: Int = 0,
                var title: String? = null,
-               var subtitleUrl: String? = null,
-               var isSelected: Boolean = false) : Parcelable {
+               var subtitleUrl: String? = null) : Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
