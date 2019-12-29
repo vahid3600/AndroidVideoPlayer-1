@@ -12,16 +12,24 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.user.exoplayer.R;
 import com.user.exoplayer.player.data.VideoSource;
 import com.user.exoplayer.player.data.database.AppDatabase;
 import com.user.exoplayer.player.data.database.Subtitle;
 import com.user.exoplayer.player.data.model.Audio;
+import com.user.exoplayer.player.data.model.Quality;
 import com.user.exoplayer.player.util.AudioDialog;
+import com.user.exoplayer.player.util.QualityDialog;
 import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialog;
 import com.user.exoplayer.player.util.PlayerController;
 import com.user.exoplayer.player.util.SubtitleDialog;
@@ -44,6 +52,14 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private boolean disableBackPress = false;
     List<Audio> audioList;
     List<Subtitle> subtitleList;
+    List<Quality> qualityList;
+
+    private static final int BITRATE_1080P = 2800000;
+    private static final int BITRATE_720P = 1600000;
+    private static final int BITRATE_480P = 700000;
+    private static final int BITRATE_360P = 530000;
+    private static final int BITRATE_240P = 400000;
+    private static final int BITRATE_160P = 300000;
 
     /***********************************************************
      Handle audio on different events
@@ -236,7 +252,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 player.setMute(false);
                 break;
             case R.id.btn_settings:
-                player.setSelectedQuality(this);
+                showQualityDialog();
+//                player.setSelectedQuality(this);
                 break;
             case R.id.btn_subtitle:
                 showSubtitleDialog();
@@ -342,12 +359,12 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         subtitleDialog.showTitleScreen("Subtitle");
         subtitleDialog.showSubtitleList(getSubtitleList(), (subtitle, position) -> {
 
-                if (subtitle.getId() == -1)
-                    PlayerActivity.this.showSubtitle(false);
-                else
-                    player.setSelectedSubtitle(subtitle);
-                updateSubtitleList(position);
-                subtitleDialog.dismiss();
+            if (subtitle.getId() == -1)
+                PlayerActivity.this.showSubtitle(false);
+            else
+                player.setSelectedSubtitle(subtitle);
+            updateSubtitleList(position);
+            subtitleDialog.dismiss();
 
         });
     }
@@ -361,6 +378,28 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             player.setSelectedAudio(audio.getLanguage());
             updateAudioList(position);
             audioDialog.dismiss();
+        });
+    }
+
+    private void showQualityDialog() {
+
+        QualityDialog qualityDialog = new QualityDialog();
+        qualityDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
+        qualityDialog.showTitleScreen("Quality");
+        qualityDialog.showQualityList(getQualityList(), (quality, position) -> {
+
+            DefaultTrackSelector.ParametersBuilder parametersBuilder = player.getTrackSelector().buildUponParameters();
+            DefaultTrackSelector.SelectionOverride selectionOverride =
+                    new DefaultTrackSelector.SelectionOverride(quality.getGroupIndex(), quality.getTrackIndex());
+            parametersBuilder.setRendererDisabled(0,
+                    player.getTrackSelector().getParameters().getRendererDisabled(0));
+            if (player.getTrackSelector().getCurrentMappedTrackInfo() != null) {
+                parametersBuilder.setSelectionOverride(0,
+                        player.getTrackSelector().getCurrentMappedTrackInfo().getTrackGroups(0), selectionOverride);
+            }
+            player.getTrackSelector().setParameters(parametersBuilder);
+
+            qualityDialog.dismiss();
         });
     }
 
@@ -411,6 +450,56 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         subtitleList.addAll(player.getCurrentVideo().getSubtitles());
 
         return subtitleList;
+    }
+
+    private List<Quality> getQualityList() {
+
+        qualityList = new ArrayList<>();
+        DefaultTrackSelector defaultTrackSelector = player.getTrackSelector();
+        MappingTrackSelector.MappedTrackInfo mappedTrackInfo = defaultTrackSelector.getCurrentMappedTrackInfo();
+        TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(0);
+
+        for (int i = 0; i < trackGroupArray.length; i++) {
+            TrackGroup trackGroup = trackGroupArray.get(i);
+
+            for (int j = 0; j < trackGroup.length; j++) {
+                qualityList.add(
+                        new Quality(buildBitrateString(trackGroup.getFormat(j)),
+                        i,
+                        j,
+                        player.getPlayer().getVideoFormat().bitrate == trackGroup.getFormat(j).bitrate
+                        ));
+            }
+        }
+
+        return qualityList;
+    }
+
+    private String buildBitrateString(Format format) {
+        int bitrate = format.bitrate;
+
+        if (bitrate == Format.NO_VALUE) {
+            return new DefaultTrackNameProvider(getResources()).getTrackName(format);
+        }
+        if (bitrate <= BITRATE_160P) {
+            return " 160P";
+        }
+        if (bitrate <= BITRATE_240P) {
+            return " 240P";
+        }
+        if (bitrate <= BITRATE_360P) {
+            return " 360P";
+        }
+        if (bitrate <= BITRATE_480P) {
+            return " 480P";
+        }
+        if (bitrate <= BITRATE_720P) {
+            return " 720P";
+        }
+        if (bitrate <= BITRATE_1080P) {
+            return " 1080P";
+        }
+        return new DefaultTrackNameProvider(getResources()).getTrackName(format);
     }
 
     public void setMuteMode(boolean mute) {

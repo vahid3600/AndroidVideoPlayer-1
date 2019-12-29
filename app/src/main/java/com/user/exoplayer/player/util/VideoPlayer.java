@@ -169,40 +169,8 @@ public class VideoPlayer {
         }
     }
 
-    /***********************************************************
-     manually select stream quality
-     ***********************************************************/
-    public void setSelectedQuality(Activity activity) {
-
-        MappingTrackSelector.MappedTrackInfo mappedTrackInfo;
-
-        if (trackSelector != null) {
-            mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-
-            if (mappedTrackInfo != null) {
-
-                int rendererIndex = 0; // renderer for video
-                int rendererType = mappedTrackInfo.getRendererType(rendererIndex);
-                boolean allowAdaptiveSelections =
-                        rendererType == C.TRACK_TYPE_VIDEO
-                                || (rendererType == C.TRACK_TYPE_AUDIO
-                                && mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
-                                == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_NO_TRACKS);
-
-
-                Pair<AlertDialog, MyTrackSelectionView> dialogPair =
-                        MyTrackSelectionView.getDialog(activity, trackSelector,
-                                rendererIndex,
-                                player.getVideoFormat().bitrate);
-                dialogPair.second.setShowDisableOption(false);
-                dialogPair.second.setAllowAdaptiveSelections(allowAdaptiveSelections);
-                dialogPair.second.animate();
-                Log.d(TAG, "dialogPair.first.getListView()" + dialogPair.first.getListView());
-                dialogPair.first.show();
-
-            }
-
-        }
+    public DefaultTrackSelector getTrackSelector(){
+        return trackSelector;
     }
 
     /***********************************************************
