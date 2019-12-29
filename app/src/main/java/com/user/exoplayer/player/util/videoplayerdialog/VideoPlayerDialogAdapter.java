@@ -4,22 +4,19 @@ import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.user.exoplayer.R;
 import com.user.exoplayer.databinding.DialogRecyclerviewItemBinding;
-import com.user.exoplayer.player.util.AdapterListener;
 
 import java.util.List;
 
 public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDialogAdapter.AudioViewHolder> {
 
     private List<VideoPlayerDialogModel> dataList;
-    private AdapterListener listener;
+    private VideoPlayerDialogAdapterListener listener;
 
-    public VideoPlayerDialogAdapter(List<VideoPlayerDialogModel> dataList, AdapterListener listener) {
+    public VideoPlayerDialogAdapter(List<VideoPlayerDialogModel> dataList, VideoPlayerDialogAdapterListener listener) {
         this.dataList = dataList;
         this.listener = listener;
     }
@@ -28,7 +25,7 @@ public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDi
     @Override
     public AudioViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         return new AudioViewHolder(DataBindingUtil
-                .inflate(LayoutInflater.from(viewGroup.getContext()),R.layout.dialog_recyclerview_item,
+                .inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.dialog_recyclerview_item,
                         viewGroup, false));
     }
 
@@ -43,7 +40,6 @@ public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDi
     }
 
     class AudioViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView;
         DialogRecyclerviewItemBinding binding;
 
         AudioViewHolder(DialogRecyclerviewItemBinding binding) {
@@ -53,10 +49,21 @@ public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDi
 
         void onBind(int position) {
             binding.setVideoPlayerDialogModel(dataList.get(position));
-            itemView.setOnClickListener(view -> {
-
-                listener.onItemClick(position);
+            binding.itemRadioButton.setOnClickListener(view -> {
+                updateDataList(position);
+                listener.onItemClick(dataList.get(position), position);
+            });
+            binding.itemTextView.setOnClickListener(view -> {
+                updateDataList(position);
+                listener.onItemClick(dataList.get(position), position);
             });
         }
+    }
+
+    private void updateDataList(int position) {
+        for (VideoPlayerDialogModel model : dataList) {
+            model.setSelected(false);
+        }
+        dataList.get(position).setSelected(true);
     }
 }

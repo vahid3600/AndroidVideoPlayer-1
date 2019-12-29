@@ -9,12 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import com.user.exoplayer.R
 import com.user.exoplayer.databinding.FragmentDialogVideoPlayerBinding
-import com.user.exoplayer.player.util.AdapterListener
-import kotlinx.android.synthetic.main.fragment_dialog_video_player.*
 
-open class VideoPlayerDialog : DialogFragment() {
+open class VideoPlayerDialog<T> : DialogFragment() {
 
-    var selectedItemNumber: Int = -1
     lateinit var binding: FragmentDialogVideoPlayerBinding
 
     companion object {
@@ -46,7 +43,7 @@ open class VideoPlayerDialog : DialogFragment() {
         binding.dialogCancelButton.setOnClickListener { dismiss() }
     }
 
-    fun showDataList(dataList: List<VideoPlayerDialogModel>, listener: AdapterListener<Int>) {
+    fun showDataList(dataList: List<VideoPlayerDialogModel>, listener: VideoPlayerDialogAdapterListener<VideoPlayerDialogModel>) {
 
         binding.dialogRecyclerView.adapter = VideoPlayerDialogAdapter(dataList, listener)
         binding.dialogRecyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))

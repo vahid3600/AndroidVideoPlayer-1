@@ -33,13 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private void makeListOfUri() {
         videoUriList.add(new Video("https://www.radiantmediaplayer.com/media/bbb-360p.mp4", Long.getLong("zero", 0)));
 //        videoUriList.add(new Video("https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8",  Long.getLong("zero", 0)));
-        videoUriList.add(new Video("http://172.16.0.53:1935/vod/_definst_/smil:main3.smil/playlist.m3u8",  Long.getLong("zero", 0)));
+        videoUriList.add(new Video("http://172.16.0.53:1935/vod/_definst_/smil:main3.smil/playlist.m3u8", Long.getLong("zero", 0)));
 
 //        subtitleList.add(new Subtitle(1, "English", "https://durian.blender.org/wp-content/content/subtitles/sintel_en.srt"));
 //        subtitleList.add(new Subtitle(1, "Farsi", "https://download.blender.org/durian/subs/sintel_fa.srt"));
 
-        subtitleList.add(new Subtitle(2, "German", "https://durian.blender.org/wp-content/content/subtitles/sintel_en.srt"));
-        subtitleList.add(new Subtitle(2, "French", "https://durian.blender.org/wp-content/content/subtitles/sintel_fr.srt"));
+        subtitleList.add(new Subtitle(2, "German", "https://durian.blender.org/wp-content/content/subtitles/sintel_en.srt", false));
+        subtitleList.add(new Subtitle(2, "French", "https://durian.blender.org/wp-content/content/subtitles/sintel_fr.srt", false));
 
         if (database.videoDao().getAllUrls().size() == 0) {
             database.videoDao().insertAllVideoUrl(videoUriList);

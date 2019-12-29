@@ -1,34 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
+
     <data>
 
         <variable
             name="videoPlayerDialogModel"
             type="com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogModel" />
     </data>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/item_selector"
-    android:orientation="horizontal"
-    android:layout_margin="@dimen/item_margin">
 
-    <TextView
-        android:id="@+id/item_text_view"
-        android:layout_width="0dp"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="10"
-        android:layout_margin="10dp"
-        android:textColor="#000"
-        android:text="@{videoPlayerDialogModel.title}"
-        android:textSize="18dp" />
+        android:layout_margin="@dimen/item_margin"
+        android:background="@drawable/item_selector"
+        android:orientation="horizontal">
 
-    <RadioButton
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="center"
-        android:background="#f0f0f0"
-        android:checked="@{videoPlayerDialogModel.selected}"/>
+        <TextView
+            android:id="@+id/item_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="10"
+            android:text="@{videoPlayerDialogModel.title}"
+            android:textColor="#000"
+            android:textSize="18dp" />
 
-</LinearLayout></layout>
+        <RadioButton
+            android:id="@+id/item_radio_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="#f0f0f0"
+            android:checked="@{videoPlayerDialogModel.selected}" />
+
+    </LinearLayout>
+</layout>

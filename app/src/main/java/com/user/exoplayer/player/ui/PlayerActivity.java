@@ -26,6 +26,7 @@ import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialog;
 import com.user.exoplayer.player.util.PlayerController;
 import com.user.exoplayer.player.util.SubtitleDialog;
 import com.user.exoplayer.player.util.VideoPlayer;
+import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogAdapterListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private VideoSource videoSource;
     private AudioManager mAudioManager;
     private boolean disableBackPress = false;
+    List<Audio> audioList;
+    List<Subtitle> subtitleList;
 
     /***********************************************************
      Handle audio on different events
@@ -337,12 +340,15 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         SubtitleDialog subtitleDialog = new SubtitleDialog();
         subtitleDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
         subtitleDialog.showTitleScreen("Subtitle");
-        subtitleDialog.showSubtitleList(getSubtitleList(), subtitle -> {
-            if (subtitle.getId() == -1)
-                showSubtitle(false);
-            else
-                player.setSelectedSubtitle(subtitle);
-            subtitleDialog.dismiss();
+        subtitleDialog.showSubtitleList(getSubtitleList(), (subtitle, position) -> {
+
+                if (subtitle.getId() == -1)
+                    PlayerActivity.this.showSubtitle(false);
+                else
+                    player.setSelectedSubtitle(subtitle);
+                updateSubtitleList(position);
+                subtitleDialog.dismiss();
+
         });
     }
 
@@ -351,14 +357,33 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         AudioDialog audioDialog = new AudioDialog();
         audioDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
         audioDialog.showTitleScreen("Audio");
-        audioDialog.showAudioList(getAudioList(), audio -> {
+        audioDialog.showAudioList(getAudioList(), (audio, position) -> {
             player.setSelectedAudio(audio.getLanguage());
+            updateAudioList(position);
             audioDialog.dismiss();
         });
     }
 
+    private void updateSubtitleList(int position) {
+        for (Subtitle subtitle : subtitleList)
+            subtitle.setSelected(false);
+
+        subtitleList.get(position).setSelected(true);
+    }
+
+    private void updateAudioList(int position) {
+        for (Audio audio : audioList)
+            audio.setSelected(false);
+
+        audioList.get(position).setSelected(true);
+    }
+
     private List<Audio> getAudioList() {
-        List<Audio> audioList = new ArrayList<>();
+
+        if (audioList != null)
+            return audioList;
+
+        audioList = new ArrayList<>();
         HlsManifest hlsManifest = (HlsManifest) player.getPlayer().getCurrentManifest();
 
         if (hlsManifest != null && hlsManifest.masterPlaylist != null
@@ -370,7 +395,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                         hlsManifest.masterPlaylist.audios.get(i).format.label != null &&
                         hlsManifest.masterPlaylist.audios.get(i).format.language != null)
                     audioList.add(new Audio(hlsManifest.masterPlaylist.audios.get(i).format.label,
-                            hlsManifest.masterPlaylist.audios.get(i).format.language));
+                            hlsManifest.masterPlaylist.audios.get(i).format.language, false));
             }
 
         return audioList;
@@ -378,8 +403,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     private List<Subtitle> getSubtitleList() {
 
-        List<Subtitle> subtitleList = new ArrayList<>();
-        subtitleList.add(new Subtitle(-1, "No Subtitle", ""));
+        if (subtitleList != null)
+            return subtitleList;
+
+        subtitleList = new ArrayList<>();
+        subtitleList.add(new Subtitle(-1, "No Subtitle", "", false));
         subtitleList.addAll(player.getCurrentVideo().getSubtitles());
 
         return subtitleList;
