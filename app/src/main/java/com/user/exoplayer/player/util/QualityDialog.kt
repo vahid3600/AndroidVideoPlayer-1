@@ -7,14 +7,23 @@ import com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogModel
 
 class QualityDialog : VideoPlayerDialog<Quality>() {
 
-    fun showQualityList(qualityList: List<Quality>, listener: VideoPlayerDialogAdapterListener<Quality>) {
+    override var defaultSelectedItemText: String? = "خودکار"
+    override var selectedItemText: String? = "(در حال پخش)"
 
-        super.showDataList(mapDataList(qualityList), object : VideoPlayerDialogAdapterListener<VideoPlayerDialogModel> {
+    fun showQualityList(qualityList: List<Quality>, qualitySelectedNumber: Int, listener: VideoPlayerDialogAdapterListener<Quality>) {
 
-            override fun onItemClick(t: VideoPlayerDialogModel, position: Int) {
-                listener.onItemClick(qualityList[position], position)
-            }
-        })
+        super.showDataList(mapDataList(qualityList),
+                qualitySelectedNumber,
+                object : VideoPlayerDialogAdapterListener<VideoPlayerDialogModel> {
+
+                    override fun onItemClick(t: VideoPlayerDialogModel, position: Int) {
+                        listener.onItemClick(qualityList[position], position)
+                    }
+
+                    override fun onDefaultItemClick() {
+                        listener.onDefaultItemClick()
+                    }
+                })
     }
 
     private fun mapDataList(qualityList: List<Quality>): List<VideoPlayerDialogModel> {
@@ -22,7 +31,7 @@ class QualityDialog : VideoPlayerDialog<Quality>() {
         val modelList = ArrayList<VideoPlayerDialogModel>()
 
         qualityList.map {
-            modelList.add(VideoPlayerDialogModel(it.bitrate, it.bitrate, it.isSelected))
+            modelList.add(VideoPlayerDialogModel(it.bitrate, it.isSelected))
         }
 
         return modelList

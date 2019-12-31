@@ -4,15 +4,18 @@ import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.widget.DividerItemDecoration
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.user.exoplayer.R
 import com.user.exoplayer.databinding.FragmentDialogVideoPlayerBinding
 
-open class VideoPlayerDialog<T> : DialogFragment() {
+abstract class VideoPlayerDialog<T> : DialogFragment() {
 
     lateinit var binding: FragmentDialogVideoPlayerBinding
+    abstract var defaultSelectedItemText: String?
+    abstract var selectedItemText: String?
 
     companion object {
 
@@ -28,9 +31,12 @@ open class VideoPlayerDialog<T> : DialogFragment() {
         super.onStart()
 
         dialog?.window?.setLayout(
-                600,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         )
+
+        dialog?.window?.setGravity(Gravity.CENTER)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -43,10 +49,33 @@ open class VideoPlayerDialog<T> : DialogFragment() {
         binding.dialogCancelButton.setOnClickListener { dismiss() }
     }
 
-    fun showDataList(dataList: List<VideoPlayerDialogModel>, listener: VideoPlayerDialogAdapterListener<VideoPlayerDialogModel>) {
+    fun showDataList(dataList: List<VideoPlayerDialogModel>,
+                     selectedItemPosition: Int,
+                     listener: VideoPlayerDialogAdapterListener<VideoPlayerDialogModel>) {
 
-        binding.dialogRecyclerView.adapter = VideoPlayerDialogAdapter(dataList, listener)
+        dataList.map {
+
+            for (i in dataList.indices) {
+                if (dataList[i].isSelected && !dataList[i].title.contains(selectedItemText.toString())) {
+                    dataList[i].title = dataList[i].title + " " + selectedItemText
+                    if (selectedItemPosition == -1)
+                        dataList[i].isSelected = false
+                }
+            }
+        }
+        val videoPlayerDialogModelList = ArrayList<VideoPlayerDialogModel>()
+        if (defaultSelectedItemText != null)
+            videoPlayerDialogModelList.add(VideoPlayerDialogModel(defaultSelectedItemText.toString(), !checkDataListIsSelected(dataList)))
+        videoPlayerDialogModelList.addAll(dataList)
+        binding.dialogRecyclerView.adapter = VideoPlayerDialogAdapter(videoPlayerDialogModelList, listener)
         binding.dialogRecyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+    }
+
+    private fun checkDataListIsSelected(dataList: List<VideoPlayerDialogModel>): Boolean {
+        for (model in dataList)
+            if (model.isSelected)
+                return true
+        return false
     }
 
     fun showTitleScreen(title: String) {

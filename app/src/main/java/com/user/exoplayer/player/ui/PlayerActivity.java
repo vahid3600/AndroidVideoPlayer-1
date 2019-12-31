@@ -53,6 +53,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private boolean disableBackPress = false;
     private int subtitleSelectedNumber = -1;
     private int audioSelectedNumber = -1;
+    private int qualitySelectedNumber = -1;
 
     /***********************************************************
      Handle audio on different events
@@ -349,16 +350,23 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         SubtitleDialog subtitleDialog = new SubtitleDialog();
         subtitleDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
         subtitleDialog.showTitleScreen("Subtitle");
-        subtitleDialog.showSubtitleList(getSubtitleList(), subtitleSelectedNumber, (subtitle, position) -> {
+        subtitleDialog.showSubtitleList(getSubtitleList(), subtitleSelectedNumber,
+                new VideoPlayerDialogAdapterListener<Subtitle>() {
+                    @Override
+                    public void onItemClick(Subtitle subtitle, int position) {
 
-            if (subtitle.getId() == -1)
-                PlayerActivity.this.showSubtitle(false);
-            else
-                player.setSelectedSubtitle(subtitle);
-            subtitleSelectedNumber = position;
-            subtitleDialog.dismiss();
+                        player.setSelectedSubtitle(subtitle);
+                        subtitleSelectedNumber = position;
+                        subtitleDialog.dismiss();
+                    }
 
-        });
+                    @Override
+                    public void onDefaultItemClick() {
+                        PlayerActivity.this.showSubtitle(false);
+                        subtitleSelectedNumber = -1;
+                        subtitleDialog.dismiss();
+                    }
+                });
     }
 
     private void showAudioDialog() {
@@ -366,10 +374,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         AudioDialog audioDialog = new AudioDialog();
         audioDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
         audioDialog.showTitleScreen("Audio");
-        audioDialog.showAudioList(getAudioList(), audioSelectedNumber, (audio, position) -> {
-            player.setSelectedAudio(audio.getLanguage());
-            audioSelectedNumber = position;
-            audioDialog.dismiss();
+        audioDialog.showAudioList(getAudioList(), audioSelectedNumber, new VideoPlayerDialogAdapterListener<Audio>() {
+            @Override
+            public void onItemClick(Audio audio, int position) {
+                player.setSelectedAudio(audio.getLanguage());
+                audioSelectedNumber = position;
+                audioDialog.dismiss();
+            }
+
+            @Override
+            public void onDefaultItemClick() {
+
+            }
         });
     }
 
@@ -378,11 +394,23 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         QualityDialog qualityDialog = new QualityDialog();
         qualityDialog.showNow(getSupportFragmentManager(), VideoPlayerDialog.TAG);
         qualityDialog.showTitleScreen("Quality");
-        qualityDialog.showQualityList(getQualityList(), (quality, position) -> {
+        qualityDialog.showQualityList(
+                getQualityList(),
+                qualitySelectedNumber,
+                new VideoPlayerDialogAdapterListener<Quality>() {
 
-            player.setSelectedQuality(quality);
-            qualityDialog.dismiss();
-        });
+                    @Override
+                    public void onItemClick(Quality quality, int position) {
+                        player.setSelectedQuality(quality);
+                        qualitySelectedNumber = position;
+                        qualityDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onDefaultItemClick() {
+
+                    }
+                });
     }
 
     private List<Audio> getAudioList() {

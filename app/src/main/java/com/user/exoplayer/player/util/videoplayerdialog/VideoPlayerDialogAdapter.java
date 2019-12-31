@@ -51,11 +51,17 @@ public class VideoPlayerDialogAdapter extends RecyclerView.Adapter<VideoPlayerDi
             binding.setVideoPlayerDialogModel(dataList.get(position));
             binding.itemRadioButton.setOnClickListener(view -> {
                 updateDataList(position);
-                listener.onItemClick(dataList.get(position), position);
+                if (position == 0)
+                    listener.onDefaultItemClick();
+                else
+                    listener.onItemClick(dataList.get(position - 1), position - 1);
             });
-            binding.itemTextView.setOnClickListener(view -> {
+            binding.getRoot().setOnClickListener(view -> {
                 updateDataList(position);
-                listener.onItemClick(dataList.get(position), position);
+                if (position == 0)
+                    listener.onDefaultItemClick();
+                else
+                    listener.onItemClick(dataList.get(position - 1), position - 1);
             });
         }
     }
