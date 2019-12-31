@@ -5,7 +5,7 @@
 
         <variable
             name="viewModel"
-            type="com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogViewModel" />
+            type="com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogModel" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,26 +20,39 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="10dp"
-            android:textSize="24sp" />
+            android:textSize="@dimen/dialog_textview_size" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:background="@color/blue_custom_dialog" />
+            android:background="@color/colorAccent" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/dialog_recycler_view"
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+            android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/dialog_cancel_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="@string/cancel"
-            android:textColor="@color/blue_custom_dialog" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/dialog_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+
+                <Button
+                    android:id="@+id/dialog_cancel_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="@string/cancel"
+                    android:textColor="@color/colorAccent" />
+
+            </LinearLayout>
+
+        </android.support.v4.widget.NestedScrollView>
 
     </LinearLayout>
 </layout>

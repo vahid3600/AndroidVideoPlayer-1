@@ -8,7 +8,7 @@
             type="com.user.exoplayer.player.util.videoplayerdialog.VideoPlayerDialogModel" />
     </data>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/item_margin"
@@ -17,22 +17,28 @@
 
         <TextView
             android:id="@+id/item_text_view"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="10"
+            android:layout_margin="@dimen/five_dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:text="@{videoPlayerDialogModel.title}"
             android:textColor="#000"
-            android:textSize="18dp" />
+            android:textDirection="rtl"
+            android:textSize="@dimen/dialog_textview_size" />
 
         <RadioButton
             android:id="@+id/item_radio_button"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="#f0f0f0"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="@dimen/five_dp"
             android:checked="@{videoPlayerDialogModel.selected}" />
 
-    </LinearLayout>
+    </RelativeLayout>
 </layout>
